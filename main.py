@@ -1,12 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask
 import yfinance as yf
 from dotenv import load_dotenv
 import os
 import requests
 
-load_dotenv(override=True)
-
 app = Flask(__name__)
+load_dotenv(override=True)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -19,17 +18,20 @@ def enviar_telegram(mensagem: str):
     }
     response = requests.post(url, data=payload)
     if response.status_code != 200:
-        # Você pode logar o erro aqui, se quiser
         pass
 
-@app.route('/verificar')
-def verificar_acoes():
+@app.route("/")
+def home():
+    return "App funcionando!"
+
+@app.route("/verificar")
+def verificar():
     with open('acoes.txt', 'r') as arquivo:
         linhas = arquivo.readlines()
 
     acoes = [linha.strip() for linha in linhas]
 
-    alertas = []
+    mensagens = []
     for acao in acoes:
         codigo = acao.replace('$', '').strip()
         if not codigo.endswith('.SA'):
@@ -47,10 +49,9 @@ def verificar_acoes():
         if preco_atual < media_90d * 0.95:
             mensagem = f"⚠️ Alerta: {codigo} caiu para R${preco_atual:.2f}, abaixo da média de 90 dias (R${media_90d:.2f})"
             enviar_telegram(mensagem)
-            alertas.append(mensagem)
+            mensagens.append(mensagem)
 
-    return jsonify({"alertas_enviados": alertas})
+    return "<br>".join(mensagens) if mensagens else "Nenhuma ação abaixo da média."
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 3000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
