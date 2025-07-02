@@ -18,7 +18,9 @@ def enviar_telegram(mensagem: str):
         "text": mensagem
     }
     response = requests.post(url, data=payload)
-    if response.status_code != 200:
+    if response.status_code == 200:
+        print(f"Mensagem enviada: {mensagem}")
+    else:
         print(f"Erro ao enviar mensagem: {response.text}")
 
 @app.route('/verificar')
