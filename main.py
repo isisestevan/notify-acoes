@@ -23,6 +23,10 @@ def enviar_telegram(mensagem: str):
     else:
         print(f"Erro ao enviar mensagem: {response.text}")
 
+@app.route('/wake')
+def wake():
+    return jsonify({"status": "Render acordado!"})
+
 @app.route('/verificar')
 def verificar():
     mensagens = []
